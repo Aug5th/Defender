@@ -10,10 +10,11 @@ public class Unit : MonoBehaviour, IMoveable, IAttackable
     public float AttackRange { get; set; } = 5f;
     public float AttackRate { get; set; } = 1f;
 
-    private Rigidbody2D rb;
+    private Rigidbody2D _rb;
 
     private bool _isAttacking;
     private float _nextAttackTime = 0f;
+    private Animator _animator;
 
     protected float _moveDirection;
     protected Vector2 _attackDirection;
@@ -21,7 +22,8 @@ public class Unit : MonoBehaviour, IMoveable, IAttackable
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
+        _rb = GetComponent<Rigidbody2D>();
+        _animator = GetComponent<Animator>();
         AttackPoint = transform.Find("AttackPoint");
     }
 
@@ -69,7 +71,7 @@ public class Unit : MonoBehaviour, IMoveable, IAttackable
     public void Move()
     {
         float moveSpeed = _isAttacking ? 0f : Speed;
-        rb.velocity = new Vector2(_moveDirection * moveSpeed, rb.velocity.y);
+        _rb.velocity = new Vector2(_moveDirection * moveSpeed, _rb.velocity.y);
     }
 
     public bool HaveAnyTargetInAttackRange()
@@ -91,12 +93,14 @@ public class Unit : MonoBehaviour, IMoveable, IAttackable
 
         if (!HaveAnyTargetInAttackRange())
         {
+            _animator.SetBool("Attacking", false);
             _isAttacking = false;
         }
     }
 
     protected virtual void OnAttack()
     {
+        _animator.SetBool("Attacking", true);
         _isAttacking = true;
     }
 }
